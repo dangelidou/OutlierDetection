@@ -23,9 +23,13 @@ def plot_silhouette_scores(silhouette_scores):
     plt.title("Silhouette Scores for KMeans Clustering")
     plt.xlabel("Number of clusters")
     plt.ylabel("Silhouette Score")
+    plt.xticks(range(2, 20)) 
     plt.show()
 
 def introduce_outliers(df, percentage_of_outliers):
+    # Set random seed for reproducibility
+    np.random.seed(42)
+
     # Determine how many outliers to create
     n_outliers = int(len(df) * percentage_of_outliers)  # 5% of 200 = 10
 
@@ -97,8 +101,8 @@ def with_without_outlier_scatterplot(df, df_outlier):
         marker='*', s=200, c='red', edgecolors='black', linewidths=1.5
     )
     axes[0].set_title(f'Without Outlier\nMSE = {mse_no_outlier:.2f}')
-    axes[0].set_xlabel('Feature 1')
-    axes[0].set_ylabel('Feature 2')
+    axes[0].set_xlabel('Annual Income (k$)')
+    axes[0].set_ylabel('Spending Score (1-100)')
 
     # -----------------
     # Subplot 2: With outlier
@@ -109,7 +113,7 @@ def with_without_outlier_scatterplot(df, df_outlier):
         marker='*', s=200, c='red', edgecolors='black', linewidths=1.5
     )
     axes[1].set_title(f'With Outlier\nMSE = {mse_with_outlier:.2f}')
-    axes[1].set_xlabel('Feature 1')
+    axes[1].set_xlabel('Annual Income (k$)')
 
     plt.tight_layout()
     plt.show()
@@ -121,16 +125,16 @@ df = pd.read_csv(file_name)
 
 # Introduce outliers
 df_outliers = introduce_outliers(df, percentage_of_outliers=0.05)
+df_outliers.to_csv("Mall_Customers_with_outliers.csv", index=False)
 
-# kept the last three columns which are the ones that define the clusters
+# kept the last two columns which are the ones that define the clusters
 df = df.iloc[:, 3:]
 df_outliers = df_outliers.iloc[:, 3:]
 
-# pca = PCA(n_components=2, svd_solver='auto')
-# data_reduced = pca.fit_transform(df_scaled)
+with_without_outlier_scatterplot(df, df_outliers)
 
 # Calculating silhouette score to find the optimal number of clusters
-silhouette_scores = kmeans_silhoutte_score(df, 2, 20)
+silhouette_scores = kmeans_silhoutte_score(df_outliers, 2, 20)
 plot_silhouette_scores(silhouette_scores)
 
 
@@ -139,3 +143,4 @@ plot_silhouette_scores(silhouette_scores)
 # plt.xlabel("Annual Income (K$)")
 # plt.ylabel("Spending Score (1-100)")
 # plt.show()
+print(df_outliers.head())
