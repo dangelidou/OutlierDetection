@@ -3,46 +3,43 @@ import os
 from scipy.io import arff
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-
+from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from sklearn.metrics import silhouette_score
 
-# # code
-# arff_file = arff.loadarff('PenDigits_withoutdupl_norm_v10.arff')
-# df = pd.DataFrame(arff_file[0])
-# print(df.tail())
 
-file_name = 'SpamBase_withoutdupl_norm_10_v10.arff'
-df = pd.DataFrame(arff.loadarff(file_name)[0])
+file_name = 'Mall_Customers.csv'
+df = pd.read_csv(file_name)
 
-# Removed last column becuase it produces error (it has values yes/no)
-df = df.iloc[:, :-2]
+# kept the last two columns which are the ones that define the clusters
+df = df.iloc[:, 3:]
 
-pca = PCA(n_components=2, svd_solver='auto')
-data_reduced = pca.fit_transform(df)
+# pca = PCA(n_components=2, svd_solver='auto')
+# data_reduced = pca.fit_transform(df_scaled)
 
-kmeans = KMeans(n_clusters=4, random_state=0).fit(df)
-print(kmeans.score(data_reduced))
+#calculating silhouette score to find the optimal number of clusters
+silhouette_scores = []
+for k in range(2, 20):  # Test for a range of k values
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    labels = kmeans.fit_predict(df)
+    score = silhouette_score(df, labels)
+    silhouette_scores.append(score)
 
-cost =[]
-for i in range(1, 10):
-	KM = KMeans(n_clusters = i, max_iter = 500)
-	KM.fit(data_reduced)
-	
-	# calculates squared error
-	# for the clustered points
-	cost.append(KM.inertia_)	 
-
-# plot the cost against K values
-plt.plot(range(1, 10), cost, color ='g', linewidth ='3')
-plt.xlabel("Value of K")
-plt.ylabel("Squared Error (Cost)")
-plt.show() # clear the plot
-
-# # the point of the elbow is the 
-# # most optimal value for choosing k
-
-# Plot the reduced data
-plt.scatter(data_reduced[:, 0], data_reduced[:, 1], c=kmeans.labels_)
+plt.plot(range(2, 20), silhouette_scores, marker='o')
+plt.title("Silhouette Scores for K")
+plt.xlabel("Number of Clusters (K)")
+plt.ylabel("Silhouette Score")
 plt.show()
 
 
+kmeans = KMeans(n_clusters=5).fit(df)
+print(kmeans.score(df))
+
+# Plot the reduced data
+# plt.scatter(data_reduced[:, 0], data_reduced[:, 1], c=kmeans.labels_)
+
+plt.scatter(df.iloc[:, 0], df.iloc[:, 1], c=kmeans.labels_)
+plt.title("5-Means Clustering of Mall Customers")
+plt.xlabel("Annual Income (K$)")
+plt.ylabel("Spending Score (1-100)")
+plt.show()
