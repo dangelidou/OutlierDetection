@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.cluster.hierarchy import dendrogram,linkage, fcluster
 from scipy.spatial.distance import cdist
 import matplotlib.pyplot as plt
 
@@ -25,7 +25,11 @@ for cluster_id in np.unique(kmeans_labels):
     
     # Apply Hierarchical Clustering
     linkage_matrix = linkage(cluster_data, method='single')
-    sub_cluster_labels = fcluster(linkage_matrix, t=2, criterion='distance')  # Parameter to change how we cluster with hierarchical algorithm
+    sub_cluster_labels = fcluster(linkage_matrix, t=3, criterion='distance')  # Parameter to change how we cluster with hierarchical algorithm
+
+    dendrogram(linkage_matrix)
+    plt.show()
+
     
     # Assign unique labels to hierarchical sub-clusters
     hierarchical_labels[kmeans_labels == cluster_id] = sub_cluster_labels + current_label
