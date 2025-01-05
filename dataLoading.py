@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
-import os
-from scipy.io import arff
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score
 
@@ -119,6 +116,27 @@ def with_without_outlier_scatterplot(df, df_outlier):
     plt.show()
 
 
+def plotGender(data):
+	plt.scatter(data.iloc[:, 1], data.iloc[:, 4])
+	plt.title("Mall Customers")
+	plt.xlabel("Gender")
+	plt.ylabel("Spending Score (1-100)")
+	plt.show()
+
+def plotAge(data):
+	plt.scatter(data.iloc[:, 2], data.iloc[:, 4])
+	plt.title("Mall Customers")
+	plt.xlabel("Age")
+	plt.ylabel("Spending Score (1-100)")
+	plt.show()
+     
+def plotIncome(data):
+	plt.scatter(data.iloc[:, 3], data.iloc[:, 4])
+	plt.title("Mall Customers")
+	plt.xlabel("Annual Income (K$)")
+	plt.ylabel("Spending Score (1-100)")
+	plt.show()
+     
 # Load the dataset
 file_name = 'Mall_Customers.csv'
 df = pd.read_csv(file_name)
@@ -126,6 +144,10 @@ df = pd.read_csv(file_name)
 # Introduce outliers
 df_outliers = introduce_outliers(df, percentage_of_outliers=0.05)
 df_outliers.to_csv("Mall_Customers_with_outliers.csv", index=False)
+
+plotGender(df)
+plotAge(df)
+plotIncome(df)
 
 # kept the last two columns which are the ones that define the clusters
 df = df.iloc[:, 3:]
