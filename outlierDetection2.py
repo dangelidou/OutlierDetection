@@ -24,8 +24,8 @@ for cluster_id in np.unique(kmeans_labels):
     cluster_data = df[kmeans_labels == cluster_id]
     
     # Apply Hierarchical Clustering
-    linkage_matrix = linkage(cluster_data, method='ward')
-    sub_cluster_labels = fcluster(linkage_matrix, t=2, criterion='distance')  # t=2 for 2 sub-clusters
+    linkage_matrix = linkage(cluster_data, method='single')
+    sub_cluster_labels = fcluster(linkage_matrix, t=2, criterion='distance')  # Parameter to change how we cluster with hierarchical algorithm
     
     # Assign unique labels to hierarchical sub-clusters
     hierarchical_labels[kmeans_labels == cluster_id] = sub_cluster_labels + current_label
