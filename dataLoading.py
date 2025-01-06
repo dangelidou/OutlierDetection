@@ -39,10 +39,12 @@ def introduce_outliers(df, percentage_of_outliers):
     # Define possible outlier ranges (customizable)
     age_outliers = [lambda: np.random.randint(1, 10),   # extremely low age
                     lambda: np.random.randint(80, 101)] # extremely high age
-    income_outliers = [lambda: np.random.randint(150, 221), # very high income
-                    lambda: np.random.randint(0, 5)]     # near 0 income
-    score_outliers = [lambda: np.random.randint(110, 161),  # above 100
-                    lambda: np.random.randint(0, 5)]      # near 0
+    income_outliers = [lambda: np.random.randint(150, 201), # very high income
+                    lambda: np.random.randint(0, 5),
+                    lambda: np.random.randint(40,60)]     # near 0 income
+    score_outliers = [lambda: np.random.randint(110, 131),  # above 100
+                    lambda: np.random.randint(0, 5),
+                    lambda: np.random.randint(40,60)]      # near 0
 
     # Loop to create outliers
     for i in range(n_outliers):
@@ -143,11 +145,11 @@ df = pd.read_csv(file_name)
 
 # Introduce outliers
 df_outliers = introduce_outliers(df, percentage_of_outliers=0.05)
-df_outliers.to_csv("Mall_Customers_with_outliers.csv", index=False)
+df_outliers.to_csv("Mall_Customers_with_outliers2.csv", index=False)
 
-plotGender(df)
-plotAge(df)
-plotIncome(df)
+# plotGender(df)
+# plotAge(df)
+# plotIncome(df)
 
 # kept the last two columns which are the ones that define the clusters
 df = df.iloc[:, 3:]
@@ -158,11 +160,3 @@ with_without_outlier_scatterplot(df, df_outliers)
 # Calculating silhouette score to find the optimal number of clusters
 silhouette_scores = kmeans_silhoutte_score(df_outliers, 2, 20)
 plot_silhouette_scores(silhouette_scores)
-
-
-# plt.scatter(df.iloc[:, 0], df.iloc[:, 1], c=kmeans.labels_)
-# plt.title("5-Means Clustering of Mall Customers")
-# plt.xlabel("Annual Income (K$)")
-# plt.ylabel("Spending Score (1-100)")
-# plt.show()
-print(df_outliers.head())
