@@ -5,10 +5,10 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from sklearn.metrics import silhouette_score
 
-
+#Calculate the silhouette score for a range of k values
 def kmeans_silhoutte_score(data, kmin, kmax):
     silhouette_scores = []
-    for k in range(kmin, kmax):  # Test for a range of k values
+    for k in range(kmin, kmax):  
         kmeans = KMeans(n_clusters=k, random_state=42)
         labels = kmeans.fit_predict(data)
         score = silhouette_score(data, labels)
@@ -74,6 +74,29 @@ def introduce_outliers(df, percentage_of_outliers):
 
     return df_outliers
 
+# Plotting functions to determine best features for clustering
+def plotGender(data):
+	plt.scatter(data.iloc[:, 1], data.iloc[:, 4])
+	plt.title("Mall Customers")
+	plt.xlabel("Gender")
+	plt.ylabel("Spending Score (1-100)")
+	plt.show()
+
+def plotAge(data):
+	plt.scatter(data.iloc[:, 2], data.iloc[:, 4])
+	plt.title("Mall Customers")
+	plt.xlabel("Age")
+	plt.ylabel("Spending Score (1-100)")
+	plt.show()
+     
+def plotIncome(data):
+	plt.scatter(data.iloc[:, 3], data.iloc[:, 4])
+	plt.title("Mall Customers")
+	plt.xlabel("Annual Income (K$)")
+	plt.ylabel("Spending Score (1-100)")
+	plt.show()
+     
+     
 def with_without_outlier_scatterplot(df, df_outlier):
     # Define number of clusters
     k = 5
@@ -117,27 +140,6 @@ def with_without_outlier_scatterplot(df, df_outlier):
     plt.tight_layout()
     plt.show()
 
-
-def plotGender(data):
-	plt.scatter(data.iloc[:, 1], data.iloc[:, 4])
-	plt.title("Mall Customers")
-	plt.xlabel("Gender")
-	plt.ylabel("Spending Score (1-100)")
-	plt.show()
-
-def plotAge(data):
-	plt.scatter(data.iloc[:, 2], data.iloc[:, 4])
-	plt.title("Mall Customers")
-	plt.xlabel("Age")
-	plt.ylabel("Spending Score (1-100)")
-	plt.show()
-     
-def plotIncome(data):
-	plt.scatter(data.iloc[:, 3], data.iloc[:, 4])
-	plt.title("Mall Customers")
-	plt.xlabel("Annual Income (K$)")
-	plt.ylabel("Spending Score (1-100)")
-	plt.show()
      
 # Load the dataset
 file_name = 'Mall_Customers.csv'
@@ -145,11 +147,11 @@ df = pd.read_csv(file_name)
 
 # Introduce outliers
 df_outliers = introduce_outliers(df, percentage_of_outliers=0.05)
-df_outliers.to_csv("Mall_Customers_with_outliers2.csv", index=False)
+df_outliers.to_csv("Mall_Customers_with_outliers.csv", index=False)
 
-# plotGender(df)
-# plotAge(df)
-# plotIncome(df)
+plotGender(df)
+plotAge(df)
+plotIncome(df)
 
 # kept the last two columns which are the ones that define the clusters
 df = df.iloc[:, 3:]

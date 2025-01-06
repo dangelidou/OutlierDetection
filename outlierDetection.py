@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 # hierarchical algorithm one after the other in that order, in order to find the outliers?"
 # 
 # --------------------------------------------------
+# Note: This code does not solve the problem in the way we need. We added it for comparison purposes.
 
 # Load dataset
 df = pd.read_csv("Mall_Customers_with_outliers.csv").iloc[:, 3:]  # Use relevant features only
@@ -38,7 +39,7 @@ plt.scatter(df.iloc[:, 0], df.iloc[:, 1], c=labels, cmap='viridis', alpha=0.7, l
 plt.scatter(df.iloc[outliers, 0], df.iloc[outliers, 1], c='red', label='Outliers', marker='x')
 plt.scatter(centroids[:, 0], centroids[:, 1], marker='*', s=200, c='black', edgecolors='white', label='Centroids')
 plt.title("K-Means with Hierarchical Outlier Detection")
-plt.xlabel("Feature 1")
-plt.ylabel("Feature 2")
+plt.xlabel("Annual Income (k$)")
+plt.ylabel("Spending Score (1-100)")
 plt.legend()
 plt.show()
