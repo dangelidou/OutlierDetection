@@ -160,5 +160,5 @@ df_outliers = df_outliers.iloc[:, 3:]
 with_without_outlier_scatterplot(df, df_outliers)
 
 # Calculating silhouette score to find the optimal number of clusters
-silhouette_scores = kmeans_silhoutte_score(df_outliers, 2, 20)
+silhouette_scores = kmeans_silhoutte_score(df, 2, 20)
 plot_silhouette_scores(silhouette_scores)
