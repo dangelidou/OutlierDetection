@@ -71,8 +71,8 @@ def plot_silhouette(data, max_clusters=10):
 df = pd.read_csv("Mall_Customers.csv").iloc[:, 3:]  # Use relevant features only
 
 # Plot the inertia and silhouette score for different cluster counts to determine the optimal number of clusters
-# plot_inertia(df, max_clusters=10)
-# plot_silhouette(df, max_clusters=10)
+plot_inertia(df, max_clusters=10)
+plot_silhouette(df, max_clusters=10)
 
 total_avg = 0
 for _ in range(1):
