@@ -1,59 +1,146 @@
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
+from scipy.cluster.hierarchy import dendrogram, linkage, fcluster, cophenet
+from scipy.spatial.distance import pdist, squareform
 from scipy.spatial.distance import cdist, euclidean
 import matplotlib.pyplot as plt, seaborn as sns
 from sklearn.metrics import silhouette_score
+import seaborn as sns
+        
+
+def distance_matrix_visualization(df, hierarchical_labels):
+    # Create a 2D distance heatmap
+    pairwise_distances = pdist(df)
+    distance_matrix = squareform(pairwise_distances)
+
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(distance_matrix, cmap="viridis", square=True, cbar=True)
+    plt.title("2D Heatmap of Pairwise Distances")
+    plt.xlabel("Points")
+    plt.ylabel("Points")
+    plt.show()
+
+    # Visualize hierarchical cluster assignments
+    plt.figure(figsize=(10, 8))
+    plt.scatter(df.iloc[:, 0], df.iloc[:, 1], c=hierarchical_labels, cmap='tab20', alpha=0.7)
+    plt.scatter(
+        kmeans_centroids[:, 0], kmeans_centroids[:, 1],
+        marker='*', s=200, c='red', edgecolors='black', linewidths=1.5
+    )
+    plt.title("Hierarchical Cluster Assignments (Last Iteration)")
+    plt.xlabel("Feature 1")
+    plt.ylabel("Feature 2")
+    plt.show()
+
+def plot_inertia(data, max_clusters=10):
+    # Calculate the inertia for a range of cluster counts
+    inertias = []
+    for k in range(1, max_clusters + 1):
+        kmeans = KMeans(n_clusters=k, random_state=42)
+        kmeans.fit(data)
+        inertias.append(kmeans.inertia_)
+
+    # Plot the inertia values
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(1, max_clusters + 1), inertias, marker='o', linestyle='--')
+    plt.xlabel("Number of Clusters")
+    plt.ylabel("Inertia")
+    plt.title("Inertia Plot for K-Means Clustering")
+    plt.grid(True)
+    plt.show()
+
+def plot_silhouette(data, max_clusters=10):
+    # Calculate the silhouette score for a range of cluster counts
+    silhouette_scores = []
+    for k in range(2, max_clusters + 1):
+        kmeans = KMeans(n_clusters=k, random_state=42)
+        kmeans_labels = kmeans.fit_predict(data)
+        silhouette_scores.append(silhouette_score(data, kmeans_labels))
+
+    # Plot the silhouette scores
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(2, max_clusters + 1), silhouette_scores, marker='o', linestyle='--')
+    plt.xlabel("Number of Clusters")
+    plt.ylabel("Silhouette Score")
+    plt.title("Silhouette Score Plot for K-Means Clustering")
+    plt.grid(True)
+    plt.show()
 
 # Reload the dataset to ensure correct path
 df = pd.read_csv("Mall_Customers.csv").iloc[:, 3:]  # Use relevant features only
 
-# Step 1: K-Means Clustering for General Clusters
-kmeans = KMeans(n_clusters=5, random_state=42)
-kmeans.fit(df)
-kmeans_labels = kmeans.labels_
-kmeans_centroids = kmeans.cluster_centers_
+# Plot the inertia and silhouette score for different cluster counts to determine the optimal number of clusters
+# plot_inertia(df, max_clusters=10)
+# plot_silhouette(df, max_clusters=10)
 
-# Prepare for Hierarchical Clustering results and visualization
-fig, axes = plt.subplots(1, 5, figsize=(20, 5), sharey=True)
-fig.suptitle("Dendrograms for Hierarchical Clustering within K-Means Clusters", fontsize=16)
+total_avg = 0
+for _ in range(1):
 
-current_label = 0  # To ensure unique labels across all sub-clusters
-hierarchical_labels = np.zeros_like(kmeans_labels, dtype=int)
+    # Step 1: K-Means Clustering for General Clusters
+    kmeans = KMeans(n_clusters=5, random_state=42)
+    kmeans.fit(df)
+    kmeans_labels = kmeans.labels_
+    kmeans_centroids = kmeans.cluster_centers_
 
-for cluster_id in range(5):  # Iterate over K-Means clusters
-    cluster_data = df[kmeans_labels == cluster_id]  # Data points in the cluster
+    # Prepare for Hierarchical Clustering results and visualization
+    # fig, axes = plt.subplots(1, 5, figsize=(20, 5), sharey=True)
+    # fig.suptitle("Dendrograms for Hierarchical Clustering within K-Means Clusters", fontsize=16)
+
+    current_label = 0  # To ensure unique labels across all sub-clusters
+    hierarchical_labels = np.zeros_like(kmeans_labels, dtype=int)
+
     
-    if len(cluster_data) > 1:  # Hierarchical clustering requires more than one point
-        # Apply Hierarchical Clustering
-        linkage_matrix = linkage(cluster_data, method='complete')
+    avg = 0
+    for cluster_id in range(5):  # Iterate over K-Means clusters
+        cluster_data = df[kmeans_labels == cluster_id]  # Data points in the cluster
         
-        # Calculate dynamic distance threshold (e.g., 50% of max distance in the linkage matrix)
-        max_distance = np.max(linkage_matrix[:, 2])
-        dynamic_t = 0.7 * max_distance  # Adjust fraction as needed
-        
-        # Use dynamic threshold for fcluster
-        sub_cluster_labels = fcluster(linkage_matrix, t=dynamic_t, criterion='distance')
-        
-        # Plot dendrogram with y-axis labels for distances
-        dendrogram(linkage_matrix, ax=axes[cluster_id], truncate_mode='lastp', p=10, color_threshold=0)
-        axes[cluster_id].set_title(f"Cluster {cluster_id + 1}")
-        axes[cluster_id].set_xlabel("Points")
-        axes[cluster_id].set_ylabel("Distance")
-        
-        # Ensure y-axis labels are displayed correctly
-        axes[cluster_id].tick_params(axis='y', which='both', left=True, labelleft=True)
+        if len(cluster_data) > 1:  # Hierarchical clustering requires more than one point
+            # Apply Hierarchical Clustering
+            linkage_matrix = linkage(cluster_data, method='complete')
+            
+            # Calculate dynamic distance threshold (e.g., 50% of max distance in the linkage matrix)
+            max_distance = np.max(linkage_matrix[:, 2])
+            dynamic_t = 0.7 * max_distance  # Adjust fraction as needed
+            
+            # Use dynamic threshold for fcluster
+            sub_cluster_labels = fcluster(linkage_matrix, t=dynamic_t, criterion='distance')
+            
+            # Plot dendrogram with y-axis labels for distances
+            # dendrogram(linkage_matrix, ax=axes[cluster_id], truncate_mode='lastp', p=10, color_threshold=0)
+            # axes[cluster_id].set_title(f"Cluster {cluster_id + 1}")
+            # axes[cluster_id].set_xlabel("Points")
+            # axes[cluster_id].set_ylabel("Distance")
+            
+            # Ensure y-axis labels are displayed correctly
+            # axes[cluster_id].tick_params(axis='y', which='both', left=True, labelleft=True)
 
-        # Assign unique labels to hierarchical sub-clusters
-        hierarchical_labels[kmeans_labels == cluster_id] = sub_cluster_labels + current_label
-        current_label += len(np.unique(sub_cluster_labels))
-    else:
-        axes[cluster_id].set_title(f"Cluster {cluster_id + 1} (Single Point)")
-        axes[cluster_id].axis('off')  # Hide axes for clusters with a single point
+            # Calculate Cophenetic Correlation Coefficient (CPCC)
+            cophenetic_corr, _ = cophenet(linkage_matrix, pdist(cluster_data))
+            avg += cophenetic_corr
+            # print(f"Cluster {cluster_id + 1}: CPCC = {cophenetic_corr:.4f}")
+        
 
-plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout for title
-plt.show()
+            # Assign unique labels to hierarchical sub-clusters
+            hierarchical_labels[kmeans_labels == cluster_id] = sub_cluster_labels + current_label
+            current_label += len(np.unique(sub_cluster_labels))
+        # else:
+            # axes[cluster_id].set_title(f"Cluster {cluster_id + 1} (Single Point)")
+            # axes[cluster_id].axis('off')  # Hide axes for clusters with a single point
+
+    # plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout for title
+    # plt.show()
+    
+    avg /= 5
+    # print(f"Average CPCC: {avg:.4f}")
+    total_avg += avg
+
+total_avg /= 1
+print(f"Total Average CPCC: {total_avg:.4f}")
+
+# Visualize the distance matrix and hierarchical cluster assignments
+distance_matrix_visualization(df, hierarchical_labels)
+
 
 # Step 3: Updated Outlier Detection
 outlier_clusters = []
